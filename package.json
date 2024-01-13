@@ -1,0 +1,41 @@
+{
+    "name": "perf-bot",
+    "version": "1.0.0",
+    "description": "Bot perf staff.",
+    "main": "index.js",
+    "repository": "",
+    "license": "MIT",
+    "engines": {
+        "node": ">= 17"
+    },
+    "scripts": {
+        "dev": "node -r ts-node/register -r tsconfig-paths/register ./src/index.ts",
+        "push": "node -r ts-node/register -r tsconfig-paths/register ./src/scripts/pushCommands.ts",
+        "build": "tsc --build --verbose",
+        "start": "cross-env TS_NODE_BASEURL=./build node -r tsconfig-paths/register build/index.js",
+        "format": "prettier -w ./src/",
+        "check-formatting": "prettier --check ./src/",
+        "lint": "eslint ./src && tsc --noEmit"
+    },
+    "dependencies": {
+        "@sentry/node": "^7.47.0",
+        "axios": "^0.22.0",
+        "chalk": "^4.1.2",
+        "cross-env": "^7.0.3",
+        "discord.js": "^14.9.0",
+        "dotenv": "^10.0.0",
+        "mongoose": "^6.0.10"
+    },
+    "devDependencies": {
+        "@types/diff": "^5.0.2",
+        "@typescript-eslint/eslint-plugin": "^4.32.0",
+        "@typescript-eslint/parser": "^4.32.0",
+        "diff": "^5.1.0",
+        "eslint": "^7.32.0",
+        "eslint-plugin-unused-imports": "^2.0.0",
+        "prettier": "^2.4.1",
+        "ts-node": "^10.2.1",
+        "tsconfig-paths": "^4.1.0",
+        "typescript": "^4.4.3"
+    }
+}
