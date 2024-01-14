@@ -1,47 +1,51 @@
-import chalk from "chalk";
-import { ButtonInteraction } from "discord.js";
-import { commands } from ".";
-import { CommandReturn } from "$types/commands";
-import { log } from "$utils/log";
-import * as Sentry from "@sentry/node";
-import { context } from "$context/context";
+import { Chapter } from "$db/schemas/chapter";
+import { DBProject } from "$db/schemas/project";
+import { chapterStatusMessage } from "$utils/embeds/chapter";
+import { ButtonInteraction, GuildMember, TextChannel } from "discord.js";
+
 
 export async function handleButtonPress(interaction: ButtonInteraction) {
-    if (!interaction.customId.startsWith("event-")) return;
+    if (
+        !(interaction.member instanceof GuildMember) ||
+        !(interaction.channel instanceof TextChannel)
+    )
+        return { status: "IGNORE" };
 
-    let customID = interaction.customId.replace("event-", "");
-    const args = customID.match(/(?<={).*(?=})/)?.[0];
-    customID = customID.replace(/-?{.+}/, "");
-    const command = commands[customID];
+    const command = interaction.customId.split(":")?.[0];
+    const id = interaction.customId.split(":")?.[1];
 
-    if (!command)
-        return log(
-            chalk.green(`🔲 ${interaction.customId}`),
-            "appuyé par",
-            chalk.blue(interaction.user.tag),
-            "❌",
-            chalk.bold(chalk.red("NO_EXIST")),
-        );
-    let result: CommandReturn = {
-        status: "ERROR",
-        label: "Unknown error",
-    };
-    let error: unknown;
-    try {
-        result = await command.run(context.client, interaction, args);
-    } catch (err) {
-        error = err;
-        Sentry.captureException(err);
+    if (!command || !id) return { status: "IGNORE" };
+
+    const chapter = await Chapter.findById(id);
+    if (!chapter) return { status: "IGNORE" };
+
+    switch (command) {
+    case "translate":
+        chapter.translated = true;
+        break;
+    case "check":
+        chapter.checked = true;
+        break;
+    case "clean":
+        chapter.cleaned = true;
+        break;
+    case "edit":
+        chapter.edited = true;
+        break;
+    case "post":
+        chapter.posted = true;
+        break;
+    default:
+        break;
     }
 
-    log(
-        chalk.green(`🔲 ${interaction.customId}`),
-        "appuyé par",
-        chalk.blue(interaction.user.tag),
-        result.status === "OK" && !error ? "✔️" : "❌",
-        result.label || "",
-        error || result.status !== "OK"
-            ? error || chalk.bold(chalk.red(result))
-            : "",
-    );
+    await chapter.save();
+
+    await chapter.populate("project");
+    
+    await interaction.message.edit(chapterStatusMessage(chapter, chapter.project as unknown as DBProject));
+    await interaction.reply({
+        ephemeral: true,
+        content: "Merci <:652923844343889920:732262582957899817>",
+    });
 }

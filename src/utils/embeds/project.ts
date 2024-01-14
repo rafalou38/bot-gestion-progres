@@ -6,23 +6,22 @@ export function projectConfigEmbed(project: IProject): APIEmbed  {
         title: `Configuration de ${project.name}`,
         color: 0x00ff00,
         description: `
-**Channel submission:** ${project.channelSubmit}
-**Channel task:** ${project.channelTask}
+**Salon:** <#${project.channel}>
 
 **Traducteurs:**
-${project.trads.map((t) => `• <@&${t}>`).join("\n")}
+${project.trads.map((t) => `• <@${t}>`).join("\n")}
 
-**Checkers:**
-${project.checks.map((t) => `• <@&${t}>`).join("\n")}
+**Checkeurs:**
+${project.checks.map((t) => `• <@${t}>`).join("\n")}
 
 **Cleaners:**
-${project.cleans.map((t) => `• <@&${t}>`).join("\n")}
+${project.cleans.map((t) => `• <@${t}>`).join("\n")}
 
-**Editors:**
-${project.edits.map((t) => `• <@&${t}>`).join("\n")}
+**Editeurs:**
+${project.edits.map((t) => `• <@${t}>`).join("\n")}
 
-**Posteur:**
-${project.poster.map((t) => `• <@&${t}>`).join("\n")}
+**Posteurs:**
+${project.poster.map((t) => `• <@${t}>`).join("\n")}
 `.trim()
     };
 }

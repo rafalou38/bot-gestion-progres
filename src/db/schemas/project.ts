@@ -2,23 +2,22 @@ import { Document, model, Schema, Types } from "mongoose";
 
 export interface IProject {
     name: string,
-    channelSubmit: string,
-    channelTask: string,
+    channel: string,
     trads: string[],
     checks: string[],
     cleans: string[],
     edits: string[],
     poster: string[]
 }
-export type DBMember = Document<unknown, unknown, IProject> &
+export type DBProject = Document<unknown, unknown, IProject> &
     IProject & {
         _id: Types.ObjectId;
     };
 
 const schema = new Schema<IProject>({
     name: String,
-    channelSubmit: String,
-    channelTask: String,
+    // channelSubmit: String,
+    channel: String,
     trads: [{ type: String }],
     checks: [{ type: String }],
     cleans: [{ type: String }],

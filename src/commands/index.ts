@@ -1,7 +1,9 @@
 import { ICommandList } from "types/commands";
 
-import * as config from "./config";
+import config from "./config";
+import * as newChap from "./newChapter";
 
 export const commands: ICommandList = {
-    config
+    "nouveau-chapitre": newChap,
+    config,
 };

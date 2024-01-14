@@ -1,17 +1,13 @@
 import {
     Client,
-    Colors,
     CommandInteraction,
     GuildMember,
     Message,
-    TextChannel,
 } from "discord.js";
-import { config } from "$context/config";
 import {
     CommandReturn,
     PartialApplicationCommandSubCommand,
 } from "$types/commands";
-import { askText } from "$utils/questions";
 import { askTextInteraction } from "$utils/questions/askText";
 import { Project } from "$db/schemas/project";
 import { projectConfigEmbed } from "$utils/embeds/project";
@@ -38,6 +34,10 @@ export async function run(
     const includesChannelCheck = (m: Message) => m.mentions.channels.first();
     const includeRoleCheck = (m: Message) => m.mentions.roles.first();
     const includesMemberCheck = (m: Message) => m.mentions.members?.first();
+    
+    await interaction.reply({
+        content:"Configuration d'un nouveau projet...",
+    });
 
     collect: {
         const name = (
@@ -49,27 +49,28 @@ export async function run(
                 authorCheck,
             )
         )?.content;
-        const channelSubmit = (
-            await askTextInteraction(
-                interaction,
-                1000 * 60 * 5,
-                "Quel est le channel de soumission ?",
-                true,
-                (m) => authorCheck(m) && !!includesChannelCheck(m),
-            )
-        )?.mentions.channels.first();
-        if (!channelSubmit) break collect;
 
-        const channelTask = (
+        const channel = (
             await askTextInteraction(
                 interaction,
                 1000 * 60 * 5,
-                "Quel est le channel des tâches ?",
+                "Quel est le salon du projet ?",
                 true,
                 (m) => authorCheck(m) && !!includesChannelCheck(m),
             )
-        )?.mentions.channels.first();
-        if (!channelTask) break collect;
+        )?.mentions.channels.first()?.id;
+        if (!channel) break collect;
+
+        // const channelTask = (
+        //     await askTextInteraction(
+        //         interaction,
+        //         1000 * 60 * 5,
+        //         "Quel est le channel des tâches ?",
+        //         true,
+        //         (m) => authorCheck(m) && !!includesChannelCheck(m),
+        //     )
+        // )?.mentions.channels.first();
+        // if (!channelTask) break collect;
 
         const membersTrad = (
             await askTextInteraction(
@@ -126,13 +127,12 @@ export async function run(
 
         const project = await new Project({
             name: name,
-            channelSubmit: channelSubmit.id,
-            channelTask: channelTask.id,
-            membersTrad: membersTrad,
-            membersCheck: membersCheck,
-            membersClean: membersClean,
-            membersEdit: membersEdit,
-            membersPost: membersPost,
+            channel,
+            trads: membersTrad,
+            checks: membersCheck,
+            cleans: membersClean,
+            edits: membersEdit,
+            poster: membersPost,
         }).save();
 
         interaction.editReply({
