@@ -7,6 +7,6 @@ export default {
     name: "config",
     description: "Configuration du bot.",
     commands: {
-        new: newCmd
+        new: newCmd,
     },
 } as commandModule;

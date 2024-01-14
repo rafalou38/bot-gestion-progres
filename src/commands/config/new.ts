@@ -1,9 +1,4 @@
-import {
-    Client,
-    CommandInteraction,
-    GuildMember,
-    Message,
-} from "discord.js";
+import { Client, CommandInteraction, GuildMember, Message } from "discord.js";
 import {
     CommandReturn,
     PartialApplicationCommandSubCommand,
@@ -34,9 +29,9 @@ export async function run(
     const includesChannelCheck = (m: Message) => m.mentions.channels.first();
     const includeRoleCheck = (m: Message) => m.mentions.roles.first();
     const includesMemberCheck = (m: Message) => m.mentions.members?.first();
-    
+
     await interaction.reply({
-        content:"Configuration d'un nouveau projet...",
+        content: "Configuration d'un nouveau projet...",
     });
 
     collect: {
@@ -124,7 +119,6 @@ export async function run(
         )?.mentions.members?.map((m) => m.id);
         if (!membersPost || membersPost.length == 0) break collect;
 
-
         const project = await new Project({
             name: name,
             channel,
@@ -139,7 +133,7 @@ export async function run(
             content: "Projet crée:",
             embeds: [projectConfigEmbed(project)],
         });
-        
+
         return {
             status: "OK",
             label: "succès",

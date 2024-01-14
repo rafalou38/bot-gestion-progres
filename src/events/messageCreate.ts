@@ -7,9 +7,6 @@ import { log } from "$utils/log";
 import { handleButtonPress } from "$buttons/index";
 import * as Sentry from "@sentry/node";
 
-export async function handleMessageCreate(
-    message: Message
-): Promise<void> {
-
-    return
+export async function handleMessageCreate(message: Message): Promise<void> {
+    return;
 }

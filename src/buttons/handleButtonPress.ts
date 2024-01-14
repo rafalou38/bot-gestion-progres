@@ -3,7 +3,6 @@ import { DBProject } from "$db/schemas/project";
 import { chapterStatusMessage } from "$utils/embeds/chapter";
 import { ButtonInteraction, GuildMember, TextChannel } from "discord.js";
 
-
 export async function handleButtonPress(interaction: ButtonInteraction) {
     if (
         !(interaction.member instanceof GuildMember) ||
@@ -42,8 +41,10 @@ export async function handleButtonPress(interaction: ButtonInteraction) {
     await chapter.save();
 
     await chapter.populate("project");
-    
-    await interaction.message.edit(chapterStatusMessage(chapter, chapter.project as unknown as DBProject));
+
+    await interaction.message.edit(
+        chapterStatusMessage(chapter, chapter.project as unknown as DBProject),
+    );
     await interaction.reply({
         ephemeral: true,
         content: "Merci <:652923844343889920:732262582957899817>",

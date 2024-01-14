@@ -1,13 +1,13 @@
 import { Document, model, Schema, Types } from "mongoose";
 
 export interface IProject {
-    name: string,
-    channel: string,
-    trads: string[],
-    checks: string[],
-    cleans: string[],
-    edits: string[],
-    poster: string[]
+    name: string;
+    channel: string;
+    trads: string[];
+    checks: string[];
+    cleans: string[];
+    edits: string[];
+    poster: string[];
 }
 export type DBProject = Document<unknown, unknown, IProject> &
     IProject & {

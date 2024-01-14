@@ -1,4 +1,1 @@
-
-export const config = {
- 
-};
+export const config = {};

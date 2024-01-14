@@ -1,7 +1,7 @@
 import { IProject } from "$db/schemas/project";
 import { APIEmbed } from "discord.js";
 
-export function projectConfigEmbed(project: IProject): APIEmbed  {
+export function projectConfigEmbed(project: IProject): APIEmbed {
     return {
         title: `Configuration de ${project.name}`,
         color: 0x00ff00,
@@ -22,6 +22,6 @@ ${project.edits.map((t) => `• <@${t}>`).join("\n")}
 
 **Posteurs:**
 ${project.poster.map((t) => `• <@${t}>`).join("\n")}
-`.trim()
+`.trim(),
     };
 }

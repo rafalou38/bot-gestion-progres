@@ -6,10 +6,7 @@ import {
     InteractionReplyOptions,
     TextChannel,
 } from "discord.js";
-import {
-    CommandReturn,
-    PartialApplicationCommand,
-} from "$types/commands";
+import { CommandReturn, PartialApplicationCommand } from "$types/commands";
 import { Project } from "$db/schemas/project";
 import { Chapter } from "$db/schemas/chapter";
 import { chapterStatusMessage } from "$utils/embeds/chapter";
@@ -24,7 +21,7 @@ export const data: PartialApplicationCommand = {
             description: "Le numéro du chapitre.",
             type: ApplicationCommandOptionType.Number,
             required: true,
-        }
+        },
     ],
 };
 
@@ -44,15 +41,18 @@ export async function run(
     if (!project) {
         await interaction.reply({
             ephemeral: true,
-            embeds: [{
-                title: "Erreur",
-                description: "Place toi dans le salon du projet avant de lancer cette commande.",
-                color: 0xff0000
-            }],
+            embeds: [
+                {
+                    title: "Erreur",
+                    description:
+                        "Place toi dans le salon du projet avant de lancer cette commande.",
+                    color: 0xff0000,
+                },
+            ],
         });
         return {
             status: "ERROR",
-            label: "NoProject"
+            label: "NoProject",
         };
     }
 
@@ -72,7 +72,9 @@ export async function run(
 
     await chapter.save();
 
-    await interaction.reply(chapterStatusMessage(chapter, project) as InteractionReplyOptions);
+    await interaction.reply(
+        chapterStatusMessage(chapter, project) as InteractionReplyOptions,
+    );
 
     return {
         status: "OK",
