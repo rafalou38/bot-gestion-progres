@@ -5,14 +5,13 @@ import {
     APIMessageComponentEmoji,
     ButtonStyle,
     ComponentType,
-    InteractionReplyOptions,
     MessageEditOptions,
 } from "discord.js";
 
 export function chapterStatusMessage(
     chapter: DBChapter,
     project: DBProject,
-): MessageEditOptions {
+): {embed: MessageEditOptions, mentions: string[]} {
     const done = "<:2996_Green_Veryfication:790247000519344129>";
     const todo = "<:652923844352278584:732262582856974438>";
     const waiting = "<:KannaWhat:730033275892137996>";
@@ -20,6 +19,7 @@ export function chapterStatusMessage(
     const buttons: APIMessageActionRowComponent[] = [];
 
     let mentions = "";
+    let mentionIds: string[] = [];
 
     if (!chapter.translated) {
         buttons.push({
@@ -29,6 +29,7 @@ export function chapterStatusMessage(
             label: "TRADUIT",
             custom_id: `translate:${chapter.id}`,
         });
+        mentionIds = [...mentionIds, ...project.trads];
         mentions +=
             project.trads.map((trad) => `<@${trad}>`).join(" ") +
             " Tu peux trad ce chapitre.\n";
@@ -40,6 +41,7 @@ export function chapterStatusMessage(
             label: "CHECK",
             custom_id: `check:${chapter.id}`,
         });
+        mentionIds = [...mentionIds, ...project.checks];
         mentions +=
             project.checks.map((cheque) => `<@${cheque}>`).join(" ") +
             " Tu peux check ce chapitre.\n";
@@ -53,6 +55,7 @@ export function chapterStatusMessage(
             label: "CLEAN",
             custom_id: `clean:${chapter.id}`,
         });
+        mentionIds = [...mentionIds, ...project.cleans];
         mentions +=
             project.cleans.map((clean) => `<@${clean}>`).join(" ") +
             " Tu peux clean ce chapitre.\n";
@@ -67,6 +70,7 @@ export function chapterStatusMessage(
                 label: "EDIT",
                 custom_id: `edit:${chapter.id}`,
             });
+            mentionIds = [...mentionIds, ...project.edits];
             mentions +=
                 project.edits.map((edit) => `<@${edit}>`).join(" ") +
                 " Tu peux edit ce chapitre.\n";
@@ -78,6 +82,7 @@ export function chapterStatusMessage(
                 emoji: "<:652923835036860447:732262583176003655>" as APIMessageComponentEmoji,
                 custom_id: `post:${chapter.id}`,
             });
+            mentionIds = [...mentionIds, ...project.poster];
             mentions +=
                 project.poster.map((poster) => `<@${poster}>`).join(" ") +
                 " Tu peux post ce chapitre.\n";
@@ -85,34 +90,36 @@ export function chapterStatusMessage(
     }
 
     return {
-        content: mentions,
-        embeds: [
-            {
-                title: `Chapitre: **${chapter.number}**`,
-                color: chapter.posted ? 0x00ff00 : 0x34d5eb,
-                description: `
+        mentions: mentionIds,
+        embed: {
+            content: mentions,
+            embeds: [
+                {
+                    title: `Chapitre: **${chapter.number}**`,
+                    color: chapter.posted ? 0x00ff00 : 0x34d5eb,
+                    description: `
 Trad:   ${chapter.translated ? done : todo}
 Check: ${chapter.translated ? (chapter.checked ? done : todo) : waiting}
 Clean: ${chapter.cleaned ? done : todo}
-Edit:   ${
-                    chapter.checked && chapter.cleaned
-                        ? chapter.edited
-                            ? done
-                            : todo
-                        : waiting
-                }
+Edit:   ${chapter.checked && chapter.cleaned
+        ? chapter.edited
+            ? done
+            : todo
+        : waiting
+}
 Post:   ${chapter.edited ? (chapter.posted ? done : todo) : waiting}
 `.trim(),
-            },
-        ],
-        components:
-            buttons.length > 0
-                ? [
-                      {
-                          type: ComponentType.ActionRow,
-                          components: buttons,
-                      },
-                  ]
-                : [],
+                },
+            ],
+            components:
+                buttons.length > 0
+                    ? [
+                        {
+                            type: ComponentType.ActionRow,
+                            components: buttons,
+                        },
+                    ]
+                    : [],
+        }
     };
 }

@@ -1,15 +1,20 @@
 import {
     ApplicationCommandOptionType,
+    ButtonStyle,
     Client,
     CommandInteraction,
+    ComponentType,
     GuildMember,
     InteractionReplyOptions,
+    MessageCreateOptions,
+    MessagePayload,
     TextChannel,
 } from "discord.js";
 import { CommandReturn, PartialApplicationCommand } from "$types/commands";
 import { Project } from "$db/schemas/project";
 import { Chapter } from "$db/schemas/chapter";
 import { chapterStatusMessage } from "$utils/embeds/chapter";
+import { StaffMember } from "$db/schemas/member";
 
 export const subCommand = false;
 export const data: PartialApplicationCommand = {
@@ -71,10 +76,40 @@ export async function run(
     });
 
     await chapter.save();
-
-    await interaction.reply(
-        chapterStatusMessage(chapter, project) as InteractionReplyOptions,
+    const { embed: baseMsg, mentions } = chapterStatusMessage(chapter, project);
+    const reply = await interaction.reply(
+        baseMsg as InteractionReplyOptions
     );
+
+    const replyMsg = await reply.fetch();
+
+    const privMsg: InteractionReplyOptions = {
+        ...baseMsg as InteractionReplyOptions,
+        content: project.name,
+        components: [
+            {
+                type: ComponentType.ActionRow,
+                components: [
+                    {
+                        type: ComponentType.Button,
+                        style: ButtonStyle.Link,
+                        label: "Valider",
+                        url: `https://discord.com/channels/${interaction.guildId}/${project.channel}/${replyMsg.id}`,
+                    },
+                ],
+            },
+        ],
+    };
+
+    mentions.forEach(async (mention) => {
+        const member = await StaffMember.findOne({ memberID: mention });
+        if (member) {
+            const channel = await client.channels.fetch(member.channelID) as TextChannel;
+            if (channel) {
+                await channel.send(privMsg as MessageCreateOptions);
+            }
+        }
+    });
 
     return {
         status: "OK",

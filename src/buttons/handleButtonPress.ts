@@ -1,7 +1,8 @@
 import { Chapter } from "$db/schemas/chapter";
+import { StaffMember } from "$db/schemas/member";
 import { DBProject } from "$db/schemas/project";
 import { chapterStatusMessage } from "$utils/embeds/chapter";
-import { ButtonInteraction, GuildMember, TextChannel } from "discord.js";
+import { ButtonInteraction, ButtonStyle, ComponentType, GuildMember, InteractionReplyOptions, MessageCreateOptions, TextChannel } from "discord.js";
 
 export async function handleButtonPress(interaction: ButtonInteraction) {
     if (
@@ -42,9 +43,39 @@ export async function handleButtonPress(interaction: ButtonInteraction) {
 
     await chapter.populate("project");
 
+    const { embed: baseMsg, mentions } = chapterStatusMessage(chapter, chapter.project as unknown as DBProject);
     await interaction.message.edit(
-        chapterStatusMessage(chapter, chapter.project as unknown as DBProject),
+        baseMsg
     );
+    const replyMsg = await interaction.message.fetch();
+
+    const privMsg: InteractionReplyOptions = {
+        ...baseMsg as InteractionReplyOptions,
+        content: (chapter.project as unknown as DBProject).name,
+        components: [
+            {
+                type: ComponentType.ActionRow,
+                components: [
+                    {
+                        type: ComponentType.Button,
+                        style: ButtonStyle.Link,
+                        label: "Valider",
+                        url: `https://discord.com/channels/${interaction.guildId}/${(chapter.project as unknown as DBProject).channel}/${replyMsg.id}`,
+                    },
+                ],
+            },
+        ],
+    };
+
+    mentions.forEach(async (mention) => {
+        const member = await StaffMember.findOne({ memberID: mention });
+        if (member) {
+            const channel = await interaction.client.channels.fetch(member.channelID) as TextChannel;
+            if (channel) {
+                await channel.send(privMsg as MessageCreateOptions);
+            }
+        }
+    });
     await interaction.reply({
         ephemeral: true,
         content: "Merci <:652923844343889920:732262582957899817>",
