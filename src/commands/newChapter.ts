@@ -72,7 +72,7 @@ export async function run(
         messageID: "",
     });
 
-    if(Math.random() < 1/2){
+    if(number % 10 === 0) {
         await channel.send("** **                                trad    check     clean     edit     post ");
     }
     const messageOptions = chapterStatusMessage(chapter);
