@@ -73,7 +73,7 @@ export async function run(
     });
 
     if(Math.random() < 1/4){
-        await channel.send("                                 trad    check     clean     edit     post ");
+        await channel.send("** **                                trad    check     clean     edit     post ");
     }
     const messageOptions = chapterStatusMessage(chapter);
     const sentInfoMessage = await channel.send(messageOptions);
