@@ -1,8 +1,10 @@
 import { Chapter } from "$db/schemas/chapter";
-import { StaffMember } from "$db/schemas/member";
 import { DBProject } from "$db/schemas/project";
+import { ActionType } from "$types/general";
 import { chapterStatusMessage } from "$utils/embeds/chapter";
-import { ButtonInteraction, ButtonStyle, ComponentType, GuildMember, InteractionReplyOptions, MessageCreateOptions, TextChannel } from "discord.js";
+import { sendNotifications } from "$utils/gestion";
+import { log } from "$utils/log";
+import { ButtonInteraction, GuildMember, TextChannel } from "discord.js";
 
 export async function handleButtonPress(interaction: ButtonInteraction) {
     if (
@@ -10,8 +12,11 @@ export async function handleButtonPress(interaction: ButtonInteraction) {
         !(interaction.channel instanceof TextChannel)
     )
         return { status: "IGNORE" };
+    await interaction.deferReply({
+        ephemeral: true,
+    });
 
-    const command = interaction.customId.split(":")?.[0];
+    const command = interaction.customId.split(":")?.[0] as ActionType;
     const id = interaction.customId.split(":")?.[1];
 
     if (!command || !id) return { status: "IGNORE" };
@@ -39,45 +44,33 @@ export async function handleButtonPress(interaction: ButtonInteraction) {
         break;
     }
 
-    await chapter.save();
+    if(chapter.notifications)
+        await Promise.allSettled(chapter.notifications.map(async (identifier) => {
+            const [actionType, channelID, messageID] = identifier.split("-");
+            if(actionType != command) return;
+
+
+            const channel = await interaction.client.channels.fetch(channelID) as TextChannel;
+            if (channel) {
+                await channel.messages.delete(messageID);
+                log(`Deleted message ${messageID} in ${channelID} because of ${command}`);
+            }
+        }));
 
     await chapter.populate("project");
+    const project = chapter.project as unknown as DBProject;
 
-    const { embed: baseMsg, mentions } = chapterStatusMessage(chapter, chapter.project as unknown as DBProject);
-    await interaction.message.edit(
-        baseMsg
-    );
-    const replyMsg = await interaction.message.fetch();
+    const messageOptions = chapterStatusMessage(chapter);
+    const baseChannel = await interaction.client.channels.fetch(project.channel) as TextChannel;
+    const baseMessage = await baseChannel?.messages.fetch(chapter.messageID);
+    if(baseMessage) await baseMessage.edit(messageOptions);
+    else await baseChannel?.send(messageOptions);
 
-    const privMsg: InteractionReplyOptions = {
-        ...baseMsg as InteractionReplyOptions,
-        content: (chapter.project as unknown as DBProject).name,
-        components: [
-            {
-                type: ComponentType.ActionRow,
-                components: [
-                    {
-                        type: ComponentType.Button,
-                        style: ButtonStyle.Link,
-                        label: "Valider",
-                        url: `https://discord.com/channels/${interaction.guildId}/${(chapter.project as unknown as DBProject).channel}/${replyMsg.id}`,
-                    },
-                ],
-            },
-        ],
-    };
+    await sendNotifications(interaction.client, project, chapter);
 
-    mentions.forEach(async (mention) => {
-        const member = await StaffMember.findOne({ memberID: mention });
-        if (member) {
-            const channel = await interaction.client.channels.fetch(member.channelID) as TextChannel;
-            if (channel) {
-                await channel.send(privMsg as MessageCreateOptions);
-            }
-        }
-    });
-    await interaction.reply({
-        ephemeral: true,
+    await chapter.save();
+
+    await interaction.editReply({
         content: "Merci <:652923844343889920:732262582957899817>",
     });
 }

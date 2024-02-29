@@ -1,20 +1,15 @@
 import {
     ApplicationCommandOptionType,
-    ButtonStyle,
     Client,
     CommandInteraction,
-    ComponentType,
     GuildMember,
-    InteractionReplyOptions,
-    MessageCreateOptions,
-    MessagePayload,
     TextChannel,
 } from "discord.js";
 import { CommandReturn, PartialApplicationCommand } from "$types/commands";
 import { Project } from "$db/schemas/project";
 import { Chapter } from "$db/schemas/chapter";
 import { chapterStatusMessage } from "$utils/embeds/chapter";
-import { StaffMember } from "$db/schemas/member";
+import { sendNotifications } from "$utils/gestion";
 
 export const subCommand = false;
 export const data: PartialApplicationCommand = {
@@ -40,12 +35,12 @@ export async function run(
         !(interaction.channel instanceof TextChannel)
     )
         return { status: "IGNORE" };
+    await interaction.deferReply({ ephemeral: true });
 
     const channel = interaction.channel;
     const project = await Project.findOne({ channel: channel.id });
     if (!project) {
-        await interaction.reply({
-            ephemeral: true,
+        await interaction.editReply({
             embeds: [
                 {
                     title: "Erreur",
@@ -73,46 +68,27 @@ export async function run(
         cleaned: false,
         edited: false,
         posted: false,
+        acknowledged: [],
+        messageID: "",
     });
 
+    if(Math.random() < 1/4){
+        await channel.send("                                 trad    check     clean     edit     post ");
+    }
+    const messageOptions = chapterStatusMessage(chapter);
+    const sentInfoMessage = await channel.send(messageOptions);
+    chapter.messageID = sentInfoMessage.id;
+
+    await sendNotifications(client, project, chapter);
+
     await chapter.save();
-    const { embed: baseMsg, mentions } = chapterStatusMessage(chapter, project);
-    const reply = await interaction.reply(
-        baseMsg as InteractionReplyOptions
-    );
 
-    const replyMsg = await reply.fetch();
-
-    const privMsg: InteractionReplyOptions = {
-        ...baseMsg as InteractionReplyOptions,
-        content: project.name,
-        components: [
-            {
-                type: ComponentType.ActionRow,
-                components: [
-                    {
-                        type: ComponentType.Button,
-                        style: ButtonStyle.Link,
-                        label: "Valider",
-                        url: `https://discord.com/channels/${interaction.guildId}/${project.channel}/${replyMsg.id}`,
-                    },
-                ],
-            },
-        ],
-    };
-
-    mentions.forEach(async (mention) => {
-        const member = await StaffMember.findOne({ memberID: mention });
-        if (member) {
-            const channel = await client.channels.fetch(member.channelID) as TextChannel;
-            if (channel) {
-                await channel.send(privMsg as MessageCreateOptions);
-            }
-        }
+    interaction.editReply({
+        content: "Chapitre enregisté.",
     });
 
     return {
         status: "OK",
-        label: "Uncompleted",
+        label: "Done",
     };
 }

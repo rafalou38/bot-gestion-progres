@@ -1,0 +1,5 @@
+export type ActionType = "translate"
+    | "check"
+    | "clean"
+    | "edit"
+    | "post"

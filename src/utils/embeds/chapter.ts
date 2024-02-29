@@ -1,125 +1,65 @@
-import { DBChapter } from "$db/schemas/chapter";
-import { DBProject } from "$db/schemas/project";
+import { IChapter } from "$db/schemas/chapter";
+import { IProject } from "$db/schemas/project";
+import { ActionType } from "$types/general";
+import { getNextTasks } from "$utils/gestion";
 import {
-    APIMessageActionRowComponent,
-    APIMessageComponentEmoji,
-    ButtonStyle,
-    ComponentType,
+    MessageCreateOptions,
     MessageEditOptions,
 } from "discord.js";
 
 export function chapterStatusMessage(
-    chapter: DBChapter,
-    project: DBProject,
-): {embed: MessageEditOptions, mentions: string[]} {
+    chapter: IChapter
+): MessageCreateOptions & MessageEditOptions {
     const done = "<:2996_Green_Veryfication:790247000519344129>";
     const todo = "<:652923844352278584:732262582856974438>";
     const waiting = "<:KannaWhat:730033275892137996>";
 
-    const buttons: APIMessageActionRowComponent[] = [];
+    let content = "chapitre " + String(chapter.number).padStart(4, "0");
 
-    let mentions = "";
-    let mentionIds: string[] = [];
+    content += "		" + (chapter.translated ? done : todo);
+    content += "		" + (chapter.translated ? (chapter.checked ? done : todo) : waiting);
+    content += "		" + (chapter.cleaned ? done : todo);
+    content += "		" + ((chapter.checked && chapter.cleaned) ? (chapter.edited ? done : todo) : waiting);
+    content += "		" + ((chapter.edited) ? (chapter.posted ? done : todo) : waiting);
 
-    if (!chapter.translated) {
-        buttons.push({
-            type: ComponentType.Button,
-            style: ButtonStyle.Success,
-            emoji: "<:652923835036860447:732262583176003655>" as APIMessageComponentEmoji,
-            label: "TRADUIT",
-            custom_id: `translate:${chapter.id}`,
-        });
-        mentionIds = [...mentionIds, ...project.trads];
-        mentions +=
-            project.trads.map((trad) => `<@${trad}>`).join(" ") +
-            " Tu peux trad ce chapitre.\n";
-    } else if (!chapter.checked) {
-        buttons.push({
-            type: ComponentType.Button,
-            style: ButtonStyle.Success,
-            emoji: "<:652923835036860447:732262583176003655>" as APIMessageComponentEmoji,
-            label: "CHECK",
-            custom_id: `check:${chapter.id}`,
-        });
-        mentionIds = [...mentionIds, ...project.checks];
-        mentions +=
-            project.checks.map((cheque) => `<@${cheque}>`).join(" ") +
-            " Tu peux check ce chapitre.\n";
-    }
-
-    if (!chapter.cleaned) {
-        buttons.push({
-            type: ComponentType.Button,
-            style: ButtonStyle.Success,
-            emoji: "<:652923835036860447:732262583176003655>" as APIMessageComponentEmoji,
-            label: "CLEAN",
-            custom_id: `clean:${chapter.id}`,
-        });
-        mentionIds = [...mentionIds, ...project.cleans];
-        mentions +=
-            project.cleans.map((clean) => `<@${clean}>`).join(" ") +
-            " Tu peux clean ce chapitre.\n";
-    }
-
-    if (chapter.checked && chapter.cleaned) {
-        if (!chapter.edited) {
-            buttons.push({
-                type: ComponentType.Button,
-                style: ButtonStyle.Success,
-                emoji: "<:652923835036860447:732262583176003655>" as APIMessageComponentEmoji,
-                label: "EDIT",
-                custom_id: `edit:${chapter.id}`,
-            });
-            mentionIds = [...mentionIds, ...project.edits];
-            mentions +=
-                project.edits.map((edit) => `<@${edit}>`).join(" ") +
-                " Tu peux edit ce chapitre.\n";
-        } else if (!chapter.posted) {
-            buttons.push({
-                type: ComponentType.Button,
-                style: ButtonStyle.Success,
-                label: "POST",
-                emoji: "<:652923835036860447:732262583176003655>" as APIMessageComponentEmoji,
-                custom_id: `post:${chapter.id}`,
-            });
-            mentionIds = [...mentionIds, ...project.poster];
-            mentions +=
-                project.poster.map((poster) => `<@${poster}>`).join(" ") +
-                " Tu peux post ce chapitre.\n";
-        }
-    }
+    console.log(content);
 
     return {
-        mentions: mentionIds,
-        embed: {
-            content: mentions,
-            embeds: [
-                {
-                    title: `Chapitre: **${chapter.number}**`,
-                    color: chapter.posted ? 0x00ff00 : 0x34d5eb,
-                    description: `
-Trad:   ${chapter.translated ? done : todo}
-Check: ${chapter.translated ? (chapter.checked ? done : todo) : waiting}
-Clean: ${chapter.cleaned ? done : todo}
-Edit:   ${chapter.checked && chapter.cleaned
-        ? chapter.edited
-            ? done
-            : todo
-        : waiting
-}
-Post:   ${chapter.edited ? (chapter.posted ? done : todo) : waiting}
-`.trim(),
-                },
-            ],
-            components:
-                buttons.length > 0
-                    ? [
-                        {
-                            type: ComponentType.ActionRow,
-                            components: buttons,
-                        },
-                    ]
-                    : [],
-        }
+        content,
     };
+}
+
+
+export function chapterPrivateActions(chapter: IChapter, project: IProject) {
+    const tasks = getNextTasks(chapter, project);
+
+    const messages: {
+        id: string;
+        action: ActionType;
+        message: string;
+    }[] = [];
+
+
+    for (const id of tasks.check) {
+        messages.push({ id, action: "check", message: `__**${project.name}**__: Tu peux t'occuper du **check** du chapitre **${chapter.number}**. <@${id}>` });
+    }
+
+    for (const id of tasks.translate) {
+        messages.push({ id, action: "translate", message: `__**${project.name}**__: Tu peux t'occuper de la **traduction** du chapitre **${chapter.number}**. <@${id}>` });
+    }
+
+    for (const id of tasks.clean) {
+        messages.push({ id, action: "clean", message: `__**${project.name}**__: Tu peux t'occuper du **clean** du chapitre **${chapter.number}**. <@${id}>` });
+    }
+
+    for (const id of tasks.edit) {
+        messages.push({ id, action: "edit", message: `__**${project.name}**__: Tu peux t'occuper de l'**édit** du chapitre **${chapter.number}**. <@${id}>` });
+    }
+
+    for (const id of tasks.post) {
+        messages.push({ id, action: "post", message: `__**${project.name}**__: Ça y est, tu peux **publier** le chapitre **${chapter.number}**. <@${id}>` });
+    }
+
+
+    return messages;
 }
