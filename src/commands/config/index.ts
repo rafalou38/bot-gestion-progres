@@ -1,7 +1,7 @@
 import { commandModule } from "$types/commands";
 
 import * as newCmd from "./new";
-import * as here from "./here";
+import * as claim from "./claim";
 
 export default {
     subCommand: true,
@@ -9,6 +9,6 @@ export default {
     description: "Configuration du bot.",
     commands: {
         new: newCmd,
-        here,
+        claim,
     },
 } as commandModule;
