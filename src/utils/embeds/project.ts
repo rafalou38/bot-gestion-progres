@@ -5,6 +5,10 @@ export function projectConfigEmbed(project: IProject): APIEmbed {
     return {
         title: `Configuration de ${project.name}`,
         color: 0x00ff00,
+        fields: [
+            { name: "Lien de la VA", value: project.vaLink || "Non spécifié", inline: false },
+            { name: "Lien du Pcloud", value: project.pcloudLink || "Non spécifié", inline: false },
+        ],
         description: `
 **Salon:** <#${project.channel}>
 

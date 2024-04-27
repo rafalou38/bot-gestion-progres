@@ -56,16 +56,27 @@ export async function run(
         )?.mentions.channels.first()?.id;
         if (!channel) break collect;
 
-        // const channelTask = (
-        //     await askTextInteraction(
-        //         interaction,
-        //         1000 * 60 * 5,
-        //         "Quel est le channel des tâches ?",
-        //         true,
-        //         (m) => authorCheck(m) && !!includesChannelCheck(m),
-        //     )
-        // )?.mentions.channels.first();
-        // if (!channelTask) break collect;
+        const vaLink = (
+            await askTextInteraction(
+                interaction,
+                1000 * 60 * 5,
+                "Lien de la VA :",
+                true,
+                authorCheck,
+            )
+        )?.content;
+        if (!vaLink) break collect;
+    
+        const pcloudLink = (
+            await askTextInteraction(
+                interaction,
+                1000 * 60 * 5,
+                "Lien du Pcloud (version protégée) :",
+                true,
+                authorCheck,
+            )
+        )?.content;
+        if (!pcloudLink) break collect;
 
         const membersTrad = (
             await askTextInteraction(
@@ -122,6 +133,8 @@ export async function run(
         const project = await new Project({
             name: name,
             channel,
+            vaLink: vaLink,
+            pcloudLink: pcloudLink,
             trads: membersTrad,
             checks: membersCheck,
             cleans: membersClean,
