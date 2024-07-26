@@ -44,10 +44,10 @@ export async function handleButtonPress(interaction: ButtonInteraction) {
         break;
     }
 
-    if(chapter.notifications)
+    if (chapter.notifications)
         await Promise.allSettled(chapter.notifications.map(async (identifier) => {
             const [actionType, channelID, messageID] = identifier.split("-");
-            if(actionType != command) return;
+            if (actionType != command) return;
 
 
             const channel = await interaction.client.channels.fetch(channelID) as TextChannel;
@@ -63,7 +63,15 @@ export async function handleButtonPress(interaction: ButtonInteraction) {
     const messageOptions = chapterStatusMessage(chapter);
     const baseChannel = await interaction.client.channels.fetch(project.channel) as TextChannel;
     const baseMessage = await baseChannel?.messages.fetch(chapter.messageID);
-    if(baseMessage) await baseMessage.edit(messageOptions);
+
+
+    if (baseMessage) {
+        if (chapter.posted) {
+            return baseMessage.delete();
+        }else{
+            await baseMessage.edit(messageOptions);
+        }
+    }
     else await baseChannel?.send(messageOptions);
 
     await sendNotifications(interaction.client, project, chapter);
