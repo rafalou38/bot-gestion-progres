@@ -10,6 +10,7 @@ import { handleInteractionCreate } from "$events/interactionCreate";
 import { connectDB } from "$db/init";
 import { context } from "$context/context";
 import { handleMessageCreate } from "$events/messageCreate";
+import { checkNewChapters } from "$tracking";
 
 if (process.env.SENTRY_DSN) {
     Sentry.init({
@@ -27,6 +28,14 @@ context.client = client;
 
 client.once("ready", async () => {
     log(`🤖 Bot ${client.user?.tag} successfully started 🚀`);
+
+
+    const loop = () => {
+        checkNewChapters();
+        setTimeout(loop, 1000 * 60 * 60 * (Math.random() * 2 + 1));
+    };
+
+    loop();
 });
 
 client.on("interactionCreate", handleInteractionCreate);
