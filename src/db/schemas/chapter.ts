@@ -8,6 +8,7 @@ export interface IChapter {
     checked: boolean;
     cleaned: boolean;
     q_checked: boolean;
+    q_edited: boolean;
     edited: boolean;
     posted: boolean;
     messageID: string;
@@ -28,6 +29,7 @@ const schema = new Schema<IChapter>({
     edited: Boolean,
     posted: Boolean,
     q_checked: Boolean,
+    q_edited: Boolean,
     messageID: String,
     acknowledged: [String],
 });

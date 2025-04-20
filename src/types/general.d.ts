@@ -1,6 +1,7 @@
 export type ActionType = "translate"
     | "check"
     | "q_check"
+    | "q_edit"
     | "clean"
     | "edit"
     | "post"

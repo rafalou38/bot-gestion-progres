@@ -21,7 +21,8 @@ export function chapterStatusMessage(
     content += "		" + (chapter.cleaned ? done : todo);
     content += "		" + ((chapter.checked && chapter.cleaned) ? (chapter.edited ? done : todo) : waiting);
     content += "		" + ((chapter.edited) ? (chapter.q_checked ? done : todo) : waiting);
-    content += "		" + ((chapter.edited && chapter.q_checked) ? (chapter.posted ? done : todo) : waiting);
+    content += "		" + ((chapter.edited && chapter.q_checked) ? (chapter.q_edited ? done : todo) : waiting);
+    content += "		" + ((chapter.edited && chapter.q_checked && chapter.q_edited) ? (chapter.posted ? done : todo) : waiting);
 
     console.log(content);
 
@@ -45,7 +46,10 @@ export function chapterPrivateActions(chapter: IChapter, project: IProject) {
         messages.push({ id, action: "check", message: `__**${project.name}**__: Tu peux t'occuper du **check** du chapitre **${chapter.number}**. <@${id}>` });
     }
     for (const id of tasks.q_check || []) {
-        messages.push({ id, action: "q_check", message: `__**${project.name}**__: Tu peux t'occuper du **q-check** du chapitre **${chapter.number}**. <@${id}>` });
+        messages.push({ id, action: "q_check", message: `__**${project.name}**__: Tu peux t'occuper du **q check** du chapitre **${chapter.number}**. <@${id}>` });
+    }
+    for (const id of tasks.q_edit || []) {
+        messages.push({ id, action: "q_edit", message: `__**${project.name}**__: Tu peux t'occuper du **q edit** du chapitre **${chapter.number}**. <@${id}>` });
     }
 
     for (const id of tasks.translate || []) {

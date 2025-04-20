@@ -8,6 +8,7 @@ export interface IProject {
     trads: string[];
     checks: string[];
     q_checks: string[];
+    q_editors: string[];
     cleans: string[];
     edits: string[];
     poster: string[];
@@ -26,6 +27,7 @@ const schema = new Schema<IProject>({
     trads: [{ type: String }],
     checks: [{ type: String }],
     q_checks: [{ type: String }],
+    q_editors: [{ type: String }],
     cleans: [{ type: String }],
     edits: [{ type: String }],
     poster: [{ type: String }],

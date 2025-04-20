@@ -34,6 +34,9 @@ export async function handleButtonPress(interaction: ButtonInteraction) {
     case "q_check":
         chapter.q_checked = true;
         break;
+    case "q_edit":
+        chapter.q_edited = true;
+        break;
     case "clean":
         chapter.cleaned = true;
         break;

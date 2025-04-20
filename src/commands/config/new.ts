@@ -131,6 +131,17 @@ export async function run(
         )?.mentions.members?.map((m) => m.id);
         if (!membersQCheck || membersQCheck.length == 0) break collect;
 
+        const membersQEdit = (
+            await askTextInteraction(
+                interaction,
+                1000 * 60 * 5,
+                "Qui doit faire le q edit ?",
+                true,
+                (m) => authorCheck(m) && !!includesMemberCheck(m),
+            )
+        )?.mentions.members?.map((m) => m.id);
+        if (!membersQEdit || membersQEdit.length == 0) break collect;
+
         const membersPost = (
             await askTextInteraction(
                 interaction,
@@ -150,6 +161,7 @@ export async function run(
             trads: membersTrad,
             checks: membersCheck,
             q_check: membersQCheck,
+            q_editors: membersQEdit,
             cleans: membersClean,
             edits: membersEdit,
             poster: membersPost,

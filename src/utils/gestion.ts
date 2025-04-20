@@ -9,6 +9,7 @@ export function getNextTasks(chapter: IChapter, project: IProject) {
         translate: [] as string[],
         check: [] as string[],
         q_check: [] as string[],
+        q_edit: [] as string[],
         clean: [] as string[],
         edit: [] as string[],
         post: [] as string[],
@@ -29,6 +30,8 @@ export function getNextTasks(chapter: IChapter, project: IProject) {
             tasks.edit = project.edits;
         } else if (!chapter.q_checked && project.q_checks?.length > 0) {
             tasks.q_check = project.q_checks;
+        } else if (!chapter.q_edited && project.q_editors?.length > 0) {
+            tasks.q_edit = project.q_editors;
         }
         else if (!chapter.posted) {
             tasks.post = project.poster;

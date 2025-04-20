@@ -18,6 +18,7 @@ export const data: PartialApplicationCommandSubCommand = {
         { type: ApplicationCommandOptionType.String, name: "traducteurs", description: "Mention(s) traducteurs", required: false },
         { type: ApplicationCommandOptionType.String, name: "checkeurs", description: "Mention(s) checkeurs", required: false },
         { type: ApplicationCommandOptionType.String, name: "q_checkeurs", description: "Mention(s) q_checkeurs", required: false },
+        { type: ApplicationCommandOptionType.String, name: "q_editers", description: "Mention(s) q_edit", required: false },
         { type: ApplicationCommandOptionType.String, name: "cleaners", description: "Mention(s) cleaners", required: false },
         { type: ApplicationCommandOptionType.String, name: "editeurs", description: "Mention(s) editeurs", required: false },
         { type: ApplicationCommandOptionType.String, name: "posteurs", description: "Mention(s) posteurs", required: false },
@@ -46,6 +47,7 @@ export async function run(
     const newTraductors = interaction.options.get("traducteurs", false)?.value as string || null;
     const newCheckers = interaction.options.get("checkeurs", false)?.value as string || null;
     const newQCheckers = interaction.options.get("q_checkeurs", false)?.value as string || null;
+    const newQEditors = interaction.options.get("q_editers", false)?.value as string || null;
     const newCleaners = interaction.options.get("cleaners", false)?.value as string || null;
     const newEditors = interaction.options.get("editeurs", false)?.value as string || null;
     const newPosters = interaction.options.get("posteurs", false)?.value as string || null;
@@ -58,6 +60,7 @@ export async function run(
     if (newTraductors && newTraductors.match(/\d+/g) != null) project.trads = newTraductors.match(/\d+/g) || [];
     if (newCheckers && newCheckers.match(/\d+/g) != null) project.checks = newCheckers.match(/\d+/g) || [];
     if (newQCheckers && newQCheckers.match(/\d+/g) != null) project.q_checks = newQCheckers.match(/\d+/g) || [];
+    if (newQEditors && newQEditors.match(/\d+/g) != null) project.q_editors = newQEditors.match(/\d+/g) || [];
     if (newCleaners && newCleaners.match(/\d+/g) != null) project.cleans = newCleaners.match(/\d+/g) || [];
     if (newEditors && newEditors.match(/\d+/g) != null) project.edits = newEditors.match(/\d+/g) || [];
     if (newPosters && newPosters.match(/\d+/g) != null) project.poster = newPosters.match(/\d+/g) || [];

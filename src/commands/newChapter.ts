@@ -66,6 +66,7 @@ export async function run(
         translated: false,
         checked: false,
         q_checked : false,
+        q_edited: false,
         cleaned: false,
         edited: false,
         posted: false,
@@ -74,7 +75,7 @@ export async function run(
     });
 
     if(number % 10 === 0) {
-        await channel.send("** **                                trad    check     clean     edit     post ");
+        await channel.send("** **                                trad    check     clean     edit     q_check     q_edit    post ");
     }
     const messageOptions = chapterStatusMessage(chapter);
     const sentInfoMessage = await channel.send(messageOptions);
