@@ -8,6 +8,7 @@ export function getNextTasks(chapter: IChapter, project: IProject) {
     const tasks = {
         translate: [] as string[],
         check: [] as string[],
+        q_check: [] as string[],
         clean: [] as string[],
         edit: [] as string[],
         post: [] as string[],
@@ -26,7 +27,10 @@ export function getNextTasks(chapter: IChapter, project: IProject) {
     if (chapter.checked && chapter.cleaned) {
         if (!chapter.edited) {
             tasks.edit = project.edits;
-        } else if (!chapter.posted) {
+        } else if (!chapter.q_checked && project.q_checks?.length > 0) {
+            tasks.q_check = project.q_checks;
+        }
+        else if (!chapter.posted) {
             tasks.post = project.poster;
         }
     }

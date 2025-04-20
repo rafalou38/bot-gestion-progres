@@ -62,6 +62,7 @@ export async function checkNewChapters() {
                     project: project._id,
                     translated: false,
                     checked: false,
+                    q_checked: false,
                     cleaned: false,
                     edited: false,
                     posted: false,
@@ -70,7 +71,7 @@ export async function checkNewChapters() {
                 });
 
                 if (i % 10 === 0) {
-                    await channel.send("** **                                trad    check     clean     edit     post ");
+                    await channel.send("** **                                trad    check     clean     edit     q_check     post ");
                 }
                 const messageOptions = chapterStatusMessage(chapter);
                 const sentInfoMessage = await channel.send(messageOptions);

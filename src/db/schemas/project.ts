@@ -7,6 +7,7 @@ export interface IProject {
     pcloudLink: string;
     trads: string[];
     checks: string[];
+    q_checks: string[];
     cleans: string[];
     edits: string[];
     poster: string[];
@@ -24,6 +25,7 @@ const schema = new Schema<IProject>({
     pcloudLink: { type: String },
     trads: [{ type: String }],
     checks: [{ type: String }],
+    q_checks: [{ type: String }],
     cleans: [{ type: String }],
     edits: [{ type: String }],
     poster: [{ type: String }],

@@ -20,7 +20,8 @@ export function chapterStatusMessage(
     content += "		" + (chapter.translated ? (chapter.checked ? done : todo) : waiting);
     content += "		" + (chapter.cleaned ? done : todo);
     content += "		" + ((chapter.checked && chapter.cleaned) ? (chapter.edited ? done : todo) : waiting);
-    content += "		" + ((chapter.edited) ? (chapter.posted ? done : todo) : waiting);
+    content += "		" + ((chapter.edited) ? (chapter.q_checked ? done : todo) : waiting);
+    content += "		" + ((chapter.edited && chapter.q_checked) ? (chapter.posted ? done : todo) : waiting);
 
     console.log(content);
 
@@ -40,23 +41,26 @@ export function chapterPrivateActions(chapter: IChapter, project: IProject) {
     }[] = [];
 
 
-    for (const id of tasks.check) {
+    for (const id of tasks.check || []) {
         messages.push({ id, action: "check", message: `__**${project.name}**__: Tu peux t'occuper du **check** du chapitre **${chapter.number}**. <@${id}>` });
     }
+    for (const id of tasks.q_check || []) {
+        messages.push({ id, action: "q_check", message: `__**${project.name}**__: Tu peux t'occuper du **q-check** du chapitre **${chapter.number}**. <@${id}>` });
+    }
 
-    for (const id of tasks.translate) {
+    for (const id of tasks.translate || []) {
         messages.push({ id, action: "translate", message: `__**${project.name}**__: Tu peux t'occuper de la **traduction** du chapitre **${chapter.number}**. <@${id}>` });
     }
 
-    for (const id of tasks.clean) {
+    for (const id of tasks.clean || []) {
         messages.push({ id, action: "clean", message: `__**${project.name}**__: Tu peux t'occuper du **clean** du chapitre **${chapter.number}**. <@${id}>` });
     }
 
-    for (const id of tasks.edit) {
+    for (const id of tasks.edit || []) {
         messages.push({ id, action: "edit", message: `__**${project.name}**__: Tu peux t'occuper de l'**édit** du chapitre **${chapter.number}**. <@${id}>` });
     }
 
-    for (const id of tasks.post) {
+    for (const id of tasks.post || []) {
         messages.push({ id, action: "post", message: `__**${project.name}**__: Ça y est, tu peux **publier** le chapitre **${chapter.number}**. <@${id}>` });
     }
 

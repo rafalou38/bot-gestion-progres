@@ -65,6 +65,7 @@ export async function run(
         project: project._id,
         translated: false,
         checked: false,
+        q_checked : false,
         cleaned: false,
         edited: false,
         posted: false,

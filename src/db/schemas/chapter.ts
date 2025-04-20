@@ -7,6 +7,7 @@ export interface IChapter {
     notifications: string[]; // task-channelID-messageID
     checked: boolean;
     cleaned: boolean;
+    q_checked: boolean;
     edited: boolean;
     posted: boolean;
     messageID: string;
@@ -26,6 +27,7 @@ const schema = new Schema<IChapter>({
     cleaned: Boolean,
     edited: Boolean,
     posted: Boolean,
+    q_checked: Boolean,
     messageID: String,
     acknowledged: [String],
 });
