@@ -24,6 +24,12 @@ ${project.cleans.map((t) => `• <@${t}>`).join("\n")}
 **Editeurs:**
 ${project.edits.map((t) => `• <@${t}>`).join("\n")}
 
+**Q-Check:**
+${project.q_checks.map((t) => `• <@${t}>`).join("\n")}
+
+**Q-Edit:**
+${project.q_editors.map((t) => `• <@${t}>`).join("\n")}
+
 **Posteurs:**
 ${project.poster.map((t) => `• <@${t}>`).join("\n")}
 `.trim(),
